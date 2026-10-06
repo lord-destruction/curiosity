@@ -1,8 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createTerrain } from './scene/terrain.js';
+import { createTerrain, heightAt } from './scene/terrain.js';
 import { createSky } from './scene/sky.js';
 import { createLighting } from './scene/lighting.js';
+import { createRocks } from './scene/rocks.js';
+import { createDust } from './scene/dust.js';
+import { createMoons } from './scene/moons.js';
+import { createRover } from './rover/rover.js';
 
 // Renderer
 const canvas = document.querySelector('#app');
@@ -19,25 +23,25 @@ const scene = new THREE.Scene();
 createSky(scene);
 createLighting(scene);
 scene.add(createTerrain());
+scene.add(createRocks());
 
-// TODO: reemplazar por el rover (paso 2).
-// Caja del tamaño del Perseverance (3 m de largo, 2,2 m de alto, 2,7 m de ancho)
-// para comprobar la escala y las sombras.
-const referenceBox = new THREE.Mesh(
-  new THREE.BoxGeometry(3, 2.2, 2.7),
-  new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.6 }),
-);
-referenceBox.position.y = 1.1;
-referenceBox.castShadow = true;
-referenceBox.receiveShadow = true;
-scene.add(referenceBox);
+const dust = createDust();
+scene.add(dust.points);
+
+const moons = createMoons();
+scene.add(moons.group);
+
+const { rover } = createRover();
+rover.position.y = heightAt(0, 0);
+rover.rotation.y = 0.5; // de tres cuartos hacia la cámara
+scene.add(rover);
 
 // Cámara y controles
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-camera.position.set(6, 4, 6);
+camera.position.set(7, 2.6, 8);
 
 const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 1, 0);
+controls.target.set(0, 1.2, 0);
 controls.enableDamping = true;
 controls.minDistance = 3;
 controls.maxDistance = 150;
@@ -54,9 +58,10 @@ window.addEventListener('resize', () => {
 const clock = new THREE.Clock();
 
 function animate() {
-  // Segundos desde el último cuadro; se usará para mover el rover (paso 3).
-  const delta = clock.getDelta(); // eslint-disable-line no-unused-vars
+  const delta = Math.min(clock.getDelta(), 0.1); // segundos; limitado si la pestaña estuvo en pausa
 
+  dust.update(delta, camera.position);
+  moons.update(delta);
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
