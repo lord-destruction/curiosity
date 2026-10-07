@@ -3,9 +3,6 @@ import { CANAL, MENSAJE } from './canal.js';
 
 const INTERVALO_MS = 1000; // una lectura por segundo
 const MAX_HISTORIAL = 3600; // una hora de lecturas
-
-const VELOCIDAD_MAXIMA = 0.042; // m/s, la del rover real
-const CICLO_MANEJO = 120; // s: 60 s avanzando y 60 s detenido
 const SOL_ACELERADO = 600; // s: un día marciano comprimido en 10 minutos
 
 // Reloj en un Web Worker: el navegador frena requestAnimationFrame y los
@@ -19,18 +16,21 @@ function createTicker(intervalMs, onTick) {
   return worker;
 }
 
-// Telemetría de Percy. El rover todavía no se maneja (paso 3 del CLAUDE.md),
-// así que velocidad, batería y temperatura se simulan; la inclinación sale de
-// la orientación real del modelo 3D.
-export function createPercyTelemetry(rover) {
+// Telemetría de Percy. Velocidad e inclinación salen del manejo y del modelo
+// 3D; batería y temperatura se simulan.
+export function createPercyTelemetry(rover, driving) {
   const canal = new BroadcastChannel(CANAL);
   const historial = [];
   const inicio = performance.now();
   let bateria = 92;
   let ultimaLectura = inicio;
 
+  // Lo que el diagrama en pantalla muestra de este módulo.
+  const estado = { ultimo: null, enviadoEn: 0, openmctConectado: false };
+
   canal.onmessage = ({ data: mensaje }) => {
     if (mensaje?.tipo === MENSAJE.PEDIR_HISTORIAL) {
+      estado.openmctConectado = true;
       canal.postMessage({ tipo: MENSAJE.HISTORIAL, datos: historial });
     }
   };
@@ -41,11 +41,10 @@ export function createPercyTelemetry(rover) {
     const delta = (ahora - ultimaLectura) / 1000;
     ultimaLectura = ahora;
 
-    const avanzando = tiempo % CICLO_MANEJO < CICLO_MANEJO / 2;
-    const velocidad = avanzando ? VELOCIDAD_MAXIMA * (0.9 + 0.1 * Math.random()) : 0;
+    const velocidad = Math.abs(driving.estado.velocidad);
 
-    // Avanzar gasta batería; detenido, el generador MMRTG la recarga.
-    bateria += (avanzando ? -0.02 : 0.012) * delta;
+    // Moverse gasta batería según la velocidad; detenido, el MMRTG la recarga.
+    bateria += (velocidad > 0.01 ? -0.05 * velocidad : 0.012) * delta;
     bateria = THREE.MathUtils.clamp(bateria, 20, 100);
 
     // En Jezero el aire va de unos -80 °C de madrugada a -20 °C por la tarde.
@@ -62,8 +61,11 @@ export function createPercyTelemetry(rover) {
     historial.push(dato);
     if (historial.length > MAX_HISTORIAL) historial.shift();
     canal.postMessage({ tipo: MENSAJE.DATO, dato });
+    estado.ultimo = dato;
+    estado.enviadoEn = performance.now();
   }
 
   enviar();
   createTicker(INTERVALO_MS, enviar);
+  return { estado };
 }

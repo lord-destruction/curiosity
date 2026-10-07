@@ -5,7 +5,7 @@ import { createBeam } from '../utils/geometry.js';
 // Ejes locales: adelante = +Z, izquierda = +X, arriba = +Y.
 // Mide ~3 m de largo, 2,7 m de ancho y 2,2 m de alto.
 
-const WHEEL_RADIUS = 0.2625; // 52,5 cm de diámetro
+export const WHEEL_RADIUS = 0.2625; // 52,5 cm de diámetro
 const WHEEL_WIDTH = 0.4;
 const WHEEL_X = 1.15; // centro de la rueda; el borde exterior queda a 1,35 m
 const WHEEL_Z = { front: 1.0, middle: -0.05, rear: -1.0 };

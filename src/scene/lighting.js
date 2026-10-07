@@ -19,7 +19,7 @@ export function createLighting(scene) {
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 200;
   sun.shadow.bias = -0.0005;
-  scene.add(sun);
+  scene.add(sun, sun.target);
 
   const ambient = new THREE.HemisphereLight(0xe6b98f, 0x5a2e1a, 0.7);
   scene.add(ambient);
@@ -47,5 +47,11 @@ export function createLighting(scene) {
   sunVisual.position.copy(SUN_DIRECTION).multiplyScalar(1500);
   scene.add(sunVisual);
 
-  return { sun, ambient };
+  // La zona con sombras (±50 m) acompaña al punto dado, normalmente el rover.
+  function follow(position) {
+    sun.target.position.copy(position);
+    sun.position.copy(position).addScaledVector(SUN_DIRECTION, 80);
+  }
+
+  return { sun, ambient, follow };
 }
