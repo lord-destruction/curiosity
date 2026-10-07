@@ -7,6 +7,7 @@ import { createRocks } from './scene/rocks.js';
 import { createDust } from './scene/dust.js';
 import { createMoons } from './scene/moons.js';
 import { createRover } from './rover/rover.js';
+import { createPercyTelemetry } from './telemetry/percyTelemetry.js';
 
 // Renderer
 const canvas = document.querySelector('#app');
@@ -35,6 +36,9 @@ const { rover } = createRover();
 rover.position.y = heightAt(0, 0);
 rover.rotation.y = 0.5; // de tres cuartos hacia la cámara
 scene.add(rover);
+
+// Envía la telemetría de Percy al control de misión (/mision/).
+createPercyTelemetry(rover);
 
 // Cámara y controles
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control de misión de Percy</title>
+    <!-- Open MCT ya compilado, desde el paquete npm "openmct" -->
+    <script src="/node_modules/openmct/dist/openmct.js"></script>
+  </head>
+  <body>
+    <script type="module">
+      import { PercyPlugin } from './percy-plugin.js';
+
+      const MINUTO = 60 * 1000;
+
+      // Dónde están los workers, estilos y fuentes de Open MCT.
+      openmct.setAssetPath('/node_modules/openmct/dist');
+
+      openmct.install(openmct.plugins.LocalStorage());
+      openmct.install(openmct.plugins.Espresso()); // tema oscuro
+      openmct.install(openmct.plugins.MyItems());
+      openmct.install(openmct.plugins.UTCTimeSystem());
+      openmct.install(
+        openmct.plugins.Conductor({
+          // La primera opción es la que se usa al abrir: tiempo real.
+          menuOptions: [
+            {
+              name: 'Tiempo real',
+              timeSystem: 'utc',
+              clock: 'local',
+              clockOffsets: { start: -5 * MINUTO, end: 10 * 1000 },
+            },
+            {
+              name: 'Fijo',
+              timeSystem: 'utc',
+              bounds: { start: Date.now() - 30 * MINUTO, end: Date.now() },
+            },
+          ],
+        }),
+      );
+      openmct.install(PercyPlugin());
+
+      openmct.start();
+    </script>
+  </body>
+</html>

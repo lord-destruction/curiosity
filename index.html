@@ -17,10 +17,26 @@
         width: 100%;
         height: 100%;
       }
+      #mision {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: rgba(23, 33, 46, 0.75);
+        color: #f2f4f6;
+        font: 500 14px system-ui, sans-serif;
+        text-decoration: none;
+      }
+      #mision:hover,
+      #mision:focus-visible {
+        background: rgba(23, 33, 46, 0.95);
+      }
     </style>
   </head>
   <body>
     <canvas id="app"></canvas>
+    <a id="mision" href="/mision/" target="_blank" rel="noopener">Control de misión ↗</a>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
