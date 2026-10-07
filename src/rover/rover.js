@@ -117,6 +117,18 @@ function createBody() {
   chassis.position.y = 0.95;
   group.add(chassis);
 
+  // Hazcams frontales: par de cámaras bajo el frente, inclinadas hacia el suelo
+  const hazcams = new THREE.Group();
+  hazcams.name = 'hazcams_front';
+  hazcams.position.set(0, 0.8, 1.03);
+  hazcams.rotation.x = 0.35;
+  for (const x of [0.25, -0.25]) {
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.07, 0.06), materials.dark);
+    box.position.x = x;
+    hazcams.add(box, createLens(0.025, x, 0, 0.04));
+  }
+  group.add(hazcams);
+
   const deck = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.04, 2.15), materials.body);
   deck.position.y = 1.22;
   group.add(deck);
@@ -146,18 +158,35 @@ function createMast() {
   head.position.y = 0.88;
   group.add(head);
 
-  const lenses = [
-    { x: 0, radius: 0.08 }, // SuperCam
-    { x: 0.17, radius: 0.04 }, // Mastcam-Z izquierda
-    { x: -0.17, radius: 0.04 }, // Mastcam-Z derecha
-  ];
-  for (const { x, radius } of lenses) {
-    const lens = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.06, 16), materials.lens);
-    lens.rotation.x = Math.PI / 2;
-    lens.position.set(x, 0.88, 0.14);
-    group.add(lens);
+  // SuperCam en el centro de la cabeza
+  group.add(createLens(0.08, 0, 0.88, 0.14));
+
+  // Mastcam-Z: par de cámaras con zoom a los lados de SuperCam
+  const mastcam = new THREE.Group();
+  mastcam.name = 'Mastcam_Z_cams';
+  mastcam.position.set(0, 0.88, 0.14);
+  mastcam.add(createLens(0.04, 0.17, 0, 0), createLens(0.04, -0.17, 0, 0));
+  group.add(mastcam);
+
+  // NavCams: par de cámaras de navegación sobre la cabeza
+  const navcams = new THREE.Group();
+  navcams.name = 'NavCams';
+  navcams.position.set(0, 1.03, 0.07);
+  for (const x of [0.12, -0.12]) {
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.07), materials.dark);
+    box.position.x = x;
+    navcams.add(box, createLens(0.02, x, 0, 0.04));
   }
+  group.add(navcams);
   return group;
+}
+
+// Lente que mira hacia adelante (+Z).
+function createLens(radius, x, y, z) {
+  const lens = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.06, 16), materials.lens);
+  lens.rotation.x = Math.PI / 2;
+  lens.position.set(x, y, z);
+  return lens;
 }
 
 // Brazo robótico plegado delante del rover, con la torreta de instrumentos.
@@ -186,6 +215,14 @@ function createArm() {
   drill.position.copy(turret.position).add(new THREE.Vector3(0, -0.2, 0));
   drill.rotation.x = Math.PI;
   group.add(drill);
+
+  // WATSON: cámara de primer plano de SHERLOC, en la torreta
+  const watson = new THREE.Group();
+  watson.name = 'WATSON';
+  watson.position.copy(turret.position).add(new THREE.Vector3(-0.06, -0.04, 0.16));
+  const housing = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.06), materials.dark);
+  watson.add(housing, createLens(0.03, 0, 0, 0.04));
+  group.add(watson);
   return group;
 }
 

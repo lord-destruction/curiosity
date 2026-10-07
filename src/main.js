@@ -11,6 +11,9 @@ import { createPercyTelemetry } from './telemetry/percyTelemetry.js';
 import { createKeyboard } from './controls/keyboard.js';
 import { createDriving } from './rover/driving.js';
 import { createDiagram } from './ui/diagram.js';
+import { CAMARAS } from './cameras/fotos.js';
+import { createHotspots } from './cameras/hotspots.js';
+import { createViewer } from './cameras/viewer.js';
 
 // Renderer
 const canvas = document.querySelector('#app');
@@ -49,6 +52,10 @@ const telemetry = createPercyTelemetry(rover, driving);
 
 // Diagrama en pantalla de cómo fluye el control por el código.
 const diagram = createDiagram();
+
+// Cámaras de Percy: puntos sobre el modelo que abren fotos reales de Marte.
+const viewer = createViewer({ alAbrir: () => keyboard.soltarTodo() });
+const hotspots = createHotspots(rover, CAMARAS, (camara) => viewer.abrir(camara));
 
 // Cámara y controles
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
@@ -94,6 +101,7 @@ function animate(timestamp) {
   dust.update(delta, camera.position);
   moons.update(delta);
   controls.update();
+  hotspots.update(camera);
   diagram.update(delta, {
     teclas: keyboard.teclas(),
     manejo: driving.estado,

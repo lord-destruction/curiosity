@@ -1,0 +1,72 @@
+/* Puntos brillantes sobre las cámaras del rover. */
+#camaras {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* que el ratón siga moviendo la cámara 3D */
+  z-index: 5;
+}
+.camara-punto {
+  --brillo: #7ff0ff;
+  position: absolute;
+  left: -11px;
+  top: -11px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0 25%, var(--brillo) 45%, rgba(127, 240, 255, 0.15) 70%);
+  box-shadow: 0 0 10px 3px rgba(127, 240, 255, 0.75);
+  cursor: pointer;
+  pointer-events: auto;
+  animation: latido 1.8s ease-in-out infinite;
+}
+.camara-punto:hover,
+.camara-punto:focus-visible {
+  outline: none;
+  box-shadow: 0 0 16px 6px rgba(127, 240, 255, 0.95);
+  animation-play-state: paused;
+}
+@keyframes latido {
+  0%,
+  100% {
+    box-shadow: 0 0 6px 2px rgba(127, 240, 255, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 16px 6px rgba(127, 240, 255, 0.95);
+  }
+}
+
+/* Nombre de la cámara al pasar el ratón (o al enfocar con el teclado) */
+.camara-nombre {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  display: grid;
+  gap: 1px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(14, 20, 28, 0.9);
+  color: #e6ebf0;
+  font: 13px/1.3 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  white-space: nowrap;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.camara-nombre small {
+  color: rgba(230, 235, 240, 0.65);
+  font-size: 11px;
+}
+.camara-punto:hover .camara-nombre,
+.camara-punto:focus-visible .camara-nombre {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camara-punto {
+    animation: none;
+  }
+}

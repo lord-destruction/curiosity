@@ -1,0 +1,229 @@
+/* Visor de fotos de las cámaras de Percy. */
+#visor {
+  --fondo: rgba(8, 10, 14, 0.78);
+  --papel: #f4efe6;
+  --tinta: #1d232b;
+  --tenue: #5d6773;
+  --acento: #b0482a;
+
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: var(--fondo);
+  font: 15px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  transition: background 0.3s;
+}
+#visor[hidden] {
+  display: none;
+}
+
+/* Obturador: dos hojas negras que se cierran y se vuelven a abrir */
+.obturador {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.obturador .hoja {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: #000;
+  transform: scaleY(0);
+}
+.obturador .arriba {
+  top: 0;
+  transform-origin: top;
+}
+.obturador .abajo {
+  bottom: 0;
+  transform-origin: bottom;
+}
+.obturador.activo .hoja {
+  animation: obturar 0.45s ease-in-out;
+}
+@keyframes obturar {
+  0%,
+  100% {
+    transform: scaleY(0);
+  }
+  45%,
+  55% {
+    transform: scaleY(1);
+  }
+}
+
+/* Destello del flash */
+.destello {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.destello.activo {
+  animation: flash 0.7s ease-out 0.2s;
+}
+@keyframes flash {
+  0% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* La foto, como una copia impresa */
+.foto {
+  box-sizing: border-box;
+  margin: 0;
+  /* Ancho limitado también por la altura: la foto (4:3) ocupa hasta 66vh */
+  width: min(880px, 92vw, calc(66vh * 4 / 3 + 28px));
+  max-height: 96vh;
+  display: grid;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  background: var(--papel);
+  color: var(--tinta);
+  border-radius: 6px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  cursor: zoom-in;
+  transition:
+    width 0.35s ease,
+    transform 0.35s ease;
+}
+.marco {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #2a211b;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.marco img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+}
+.cargando {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 16px;
+  color: #e9d9c8;
+  text-align: center;
+}
+
+/* Revelado: de sobreexpuesta y borrosa a la foto real, poco a poco */
+.foto.revelando img {
+  animation: revelar 2.8s ease-out both;
+}
+@keyframes revelar {
+  0% {
+    filter: brightness(3.2) contrast(0.35) saturate(0) blur(14px);
+  }
+  35% {
+    filter: brightness(1.8) contrast(0.6) saturate(0.3) blur(6px);
+  }
+  100% {
+    filter: none;
+  }
+}
+
+figcaption {
+  display: grid;
+  gap: 2px;
+}
+figcaption p {
+  margin: 0;
+}
+.titulo {
+  font-size: 17px;
+}
+.titulo strong {
+  color: var(--acento);
+}
+.contador,
+.pie {
+  color: var(--tenue);
+  font-size: 13px;
+}
+.enlace {
+  color: var(--acento);
+}
+.ayuda {
+  margin: 0;
+  color: var(--tenue);
+  font-size: 12px;
+}
+
+/* Ampliada: a pantalla completa */
+#visor[data-estado='ampliada'] {
+  background: rgba(0, 0, 0, 0.94);
+}
+#visor[data-estado='ampliada'] .foto {
+  width: 100vw;
+  max-height: 100vh;
+  height: 100vh;
+  padding: 10px 16px;
+  border-radius: 0;
+  background: #000;
+  color: #e6ebf0;
+  grid-template-rows: 1fr auto auto;
+  cursor: zoom-out;
+}
+#visor[data-estado='ampliada'] .marco {
+  aspect-ratio: auto;
+  min-height: 0; /* que la foto se encoja y deje sitio al pie */
+  background: #000;
+}
+#visor[data-estado='ampliada'] .contador,
+#visor[data-estado='ampliada'] .pie,
+#visor[data-estado='ampliada'] .ayuda {
+  color: #9aa8b5;
+}
+
+/* Miniatura: en una esquina, sin tapar el juego */
+#visor[data-estado='miniatura'] {
+  background: transparent;
+  pointer-events: none;
+  place-items: end start;
+  padding: 0 0 16px 16px;
+}
+#visor[data-estado='miniatura'] .foto {
+  width: 260px;
+  padding: 8px;
+  gap: 6px;
+  pointer-events: auto;
+}
+#visor[data-estado='miniatura'] .descripcion,
+#visor[data-estado='miniatura'] .pie,
+#visor[data-estado='miniatura'] .contador {
+  display: none;
+}
+#visor[data-estado='miniatura'] .titulo {
+  font-size: 13px;
+}
+#visor[data-estado='miniatura'] .ayuda {
+  font-size: 11px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obturador.activo .hoja,
+  .destello.activo {
+    animation-duration: 0.01s;
+  }
+  .foto.revelando img {
+    animation: revelar 0.8s ease-out both;
+  }
+  .foto {
+    transition: none;
+  }
+}

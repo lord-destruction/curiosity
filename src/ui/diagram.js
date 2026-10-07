@@ -103,15 +103,17 @@ export function createDiagram() {
   panel.append(lienzo);
   document.body.append(panel);
 
+  const oculto = () => lienzo.hasAttribute('hidden');
+
   function mostrar(visible) {
-    lienzo.hidden = !visible;
+    lienzo.toggleAttribute('hidden', !visible); // un <svg> no tiene la propiedad .hidden
     panel.classList.toggle('plegado', !visible);
     boton.textContent = visible ? 'Ocultar' : 'Diagrama del código';
     boton.setAttribute('aria-expanded', String(visible));
   }
-  boton.addEventListener('click', () => mostrar(lienzo.hidden));
+  boton.addEventListener('click', () => mostrar(oculto()));
   window.addEventListener('keydown', (evento) => {
-    if (evento.code === 'KeyH' && !evento.ctrlKey && !evento.metaKey && !evento.altKey) mostrar(lienzo.hidden);
+    if (evento.code === 'KeyH' && !evento.ctrlKey && !evento.metaKey && !evento.altKey) mostrar(oculto());
   });
   mostrar(window.innerWidth >= 900);
 
@@ -119,7 +121,7 @@ export function createDiagram() {
   let acumulado = 0;
   function update(delta, info) {
     acumulado += delta;
-    if (acumulado < 0.1 || lienzo.hidden) return;
+    if (acumulado < 0.1 || oculto()) return;
     acumulado = 0;
 
     const { teclas, manejo, inclinacion, telemetria } = info;

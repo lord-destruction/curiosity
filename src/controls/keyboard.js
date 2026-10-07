@@ -30,5 +30,7 @@ export function createKeyboard() {
     // 1 izquierda, -1 derecha
     giro: () => Number(pulsada('izquierda')) - Number(pulsada('derecha')),
     teclas: () => [...pulsadas].map((code) => code.replace('Key', '').replace('Arrow', '')),
+    // Suelta todo, por ejemplo al abrir una foto (su keyup ya no llegará aquí).
+    soltarTodo: () => pulsadas.clear(),
   };
 }
