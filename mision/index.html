@@ -20,6 +20,9 @@
       openmct.install(openmct.plugins.Espresso()); // tema oscuro
       openmct.install(openmct.plugins.MyItems());
       openmct.install(openmct.plugins.UTCTimeSystem());
+      // Tableros (Display Layout). Hay que instalarlo a mano, como en el
+      // index.html de Open MCT: el arranque no lo agrega solo.
+      openmct.install(openmct.plugins.DisplayLayout());
       openmct.install(
         openmct.plugins.Conductor({
           // La primera opción es la que se usa al abrir: tiempo real.
@@ -39,6 +42,9 @@
         }),
       );
       openmct.install(PercyPlugin());
+
+      // Abrir directamente el tablero de Percy.
+      if (!location.hash) location.hash = '#/browse/percy:rover/percy:tablero';
 
       openmct.start();
     </script>

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CANAL, MENSAJE } from './canal.js';
+import { tierraMarte } from './lightTime.js';
 
 const INTERVALO_MS = 1000; // una lectura por segundo
 const MAX_HISTORIAL = 3600; // una hora de lecturas
@@ -16,8 +17,9 @@ function createTicker(intervalMs, onTick) {
   return worker;
 }
 
-// Telemetría de Percy. Velocidad e inclinación salen del manejo y del modelo
-// 3D; batería y temperatura se simulan.
+// Telemetría de Percy. Velocidad, distancia, altura e inclinación salen del
+// manejo y del modelo 3D; el retardo de luz, de las órbitas reales; batería y
+// temperatura se simulan.
 export function createPercyTelemetry(rover, driving) {
   const canal = new BroadcastChannel(CANAL);
   const historial = [];
@@ -53,7 +55,21 @@ export function createPercyTelemetry(rover, driving) {
 
     const inclinacion = THREE.MathUtils.radToDeg(Math.hypot(rover.rotation.x, rover.rotation.z));
 
-    return { utc: Date.now(), velocidad, bateria, temperatura, inclinacion };
+    // Posiciones reales de la Tierra y Marte para la fecha de hoy.
+    const utc = Date.now();
+    const { retardoMinutos, distanciaMillonesKm } = tierraMarte(utc);
+
+    return {
+      utc,
+      velocidad,
+      distancia: driving.estado.distancia,
+      altura: driving.estado.altura,
+      inclinacion,
+      bateria,
+      temperatura,
+      retardoLuz: retardoMinutos,
+      distanciaTierra: distanciaMillonesKm,
+    };
   }
 
   function enviar() {

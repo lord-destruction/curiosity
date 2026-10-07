@@ -29,10 +29,20 @@ export function createDriving(rover, wheels, keyboard) {
     velocidad: 0, // m/s, negativa marcha atrás
     giro: 0, // rad/s, positivo hacia la izquierda
     rumbo: rover.rotation.y, // rad
-    altura: rover.position.y, // m
+    altura: rover.position.y, // m, suelo bajo el rover
+    distancia: 0, // m recorridos desde que arrancó la simulación
   };
   const adelante = new THREE.Vector3();
   const izquierda = new THREE.Vector3();
+
+  // Con la pestaña oculta la simulación se pausa; el rover se detiene para
+  // que la telemetría no siga informando una velocidad que no tiene.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      estado.velocidad = 0;
+      estado.giro = 0;
+    }
+  });
 
   function update(delta) {
     const objetivo = keyboard.acelerador() * VELOCIDAD_MAXIMA;
@@ -45,6 +55,7 @@ export function createDriving(rover, wheels, keyboard) {
     izquierda.set(Math.cos(estado.rumbo), 0, -Math.sin(estado.rumbo));
 
     rover.position.addScaledVector(adelante, estado.velocidad * delta);
+    estado.distancia += Math.abs(estado.velocidad) * delta;
     rover.position.x = clamp(rover.position.x, -LIMITE, LIMITE);
     rover.position.z = clamp(rover.position.z, -LIMITE, LIMITE);
 

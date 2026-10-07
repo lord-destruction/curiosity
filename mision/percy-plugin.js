@@ -1,4 +1,5 @@
 import { CANAL, MENSAJE, MEDICIONES } from '../src/telemetry/canal.js';
+import { TABLERO } from './tablero.js';
 
 const NAMESPACE = 'percy';
 const TIPO = 'percy.medicion';
@@ -11,14 +12,15 @@ const HORA = { key: 'utc', source: 'utc', name: 'Hora', format: 'utc', hints: { 
 // Una medición como valor de Open MCT; `range` dice en qué orden van al eje Y.
 const comoValor = (medicion, orden) => ({ ...medicion, hints: { range: orden } });
 
-// Objetos del árbol: la carpeta «Percy», una medición por objeto (cada una
-// con su propia gráfica) y «Todas las mediciones» para verlas en una tabla.
+// Objetos del árbol: la carpeta «Percy», el tablero, una medición por objeto
+// (cada una con su propia gráfica) y «Todas las mediciones» para una tabla.
 const OBJETOS = {
   rover: {
     name: 'Percy',
     type: 'folder',
-    composition: [...MEDICIONES.map((m) => m.key), 'todas'].map((key) => ({ namespace: NAMESPACE, key })),
+    composition: ['tablero', ...MEDICIONES.map((m) => m.key), 'todas'].map((key) => ({ namespace: NAMESPACE, key })),
   },
+  tablero: TABLERO,
   ...Object.fromEntries(
     MEDICIONES.map((m) => [
       m.key,

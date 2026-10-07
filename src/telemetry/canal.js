@@ -14,10 +14,14 @@ export const MENSAJE = {
   HISTORIAL: 'historial',
 };
 
-// Cada lectura es un objeto plano: { utc, velocidad, bateria, temperatura, inclinacion }.
+// Cada lectura es un objeto plano con `utc` y una propiedad por medición.
 export const MEDICIONES = [
-  { key: 'velocidad', name: 'Velocidad', unit: 'm/s', formatString: '%0.3f' },
+  { key: 'velocidad', name: 'Velocidad', unit: 'm/s', formatString: '%0.2f' },
+  { key: 'distancia', name: 'Distancia recorrida', unit: 'm', formatString: '%0.1f' },
+  { key: 'altura', name: 'Altura del terreno', unit: 'm', formatString: '%0.2f' },
+  { key: 'inclinacion', name: 'Inclinación', unit: '°', formatString: '%0.1f' },
   { key: 'bateria', name: 'Batería', unit: '%', formatString: '%0.1f' },
   { key: 'temperatura', name: 'Temperatura del aire', unit: '°C', formatString: '%0.1f' },
-  { key: 'inclinacion', name: 'Inclinación', unit: '°', formatString: '%0.1f' },
+  { key: 'retardoLuz', name: 'Retardo de luz', unit: 'min', formatString: '%0.2f' }, // Tierra → Marte
+  { key: 'distanciaTierra', name: 'Distancia a la Tierra', unit: 'M km', formatString: '%0.1f' }, // millones de km
 ];
